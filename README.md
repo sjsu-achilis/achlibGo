@@ -22,7 +22,13 @@ func main(){
 d := common.NewDb()
 d.Connect()
 //fetch all
-rr := d.Fetch("select * from users")
+rr := d.Fetch("select * from users",0)
 //limit by 10
 rr := d.Fetch("select * from users", 10)
+//use parameterized statement
+rr := d.Fetch("select * from users where name=$1 and email=$2", 0, name, email)
+//insert...update and delete statement without parameter
+re := d.InsUp("DELETE FROM users WHERE name='Test Test'")
+//insert...update and delete statement with parameter
+re := d.InsUp("DELETE FROM users WHERE name=$1", name)
 d.Close()```

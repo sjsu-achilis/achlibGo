@@ -1,8 +1,6 @@
 package main
 
 import (
-	"fmt"
-
 	"github.com/sjsu-achilis/achlibgo/common"
 )
 
@@ -27,12 +25,14 @@ func main() {
 			i++
 		}
 	*/
-	d := common.NewDb()
-	d.Connect()
-	rr := d.Fetch("select * from users")
-	for _, r := range rr {
-		fmt.Println(r["organization"])
-	}
-	d.Close()
+	/*
+		d := common.NewDb()
+		d.Connect()
+		re := d.InsUp("DELETE FROM users WHERE name='Test Test'")
+		fmt.Println(re)
+		rr := d.Fetch("SELECT * FROM users", 0)
+		fmt.Println(rr)
+		d.Close()
+	*/
 
 }

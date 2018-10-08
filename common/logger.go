@@ -37,15 +37,15 @@ func (l *Logger) SetOutputFile(fname string) {
 
 //Log ...
 func (l *Logger) Log(m ...map[string]interface{}) *logrus.Entry {
-	if len(m) != 0 {
-		for k, v := range m[0] {
-			l.ent = l.ent.WithField(k, v)
-		}
+	data := make(map[string]interface{})
+	if m != nil {
+		data = m[0]
 	}
 	if pc, file, line, ok := runtime.Caller(1); ok {
 		fName := runtime.FuncForPC(pc).Name()
-		return l.ent.WithField("file", file).WithField("line", line).WithField("func", fName)
+		data["file"], data["line"], data["func"] = file, line, fName
 	}
+	l.ent.Data = data
 
 	return l.ent
 }

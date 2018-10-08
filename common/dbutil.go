@@ -62,14 +62,20 @@ func (d *Db) Close() {
 }
 
 //Fetch ...
-func (d *Db) Fetch(query string, limit ...int) []map[string]interface{} {
+func (d *Db) Fetch(query string, limit int, args ...interface{}) []map[string]interface{} {
+	var rows *sql.Rows
+	var err error
 	l := int(math.Inf(+1))
-	if limit != nil {
-		l = limit[0]
+	if limit != 0 {
+		l = limit
 	}
-	rows, err := d.Con.Query(query)
+	if args == nil {
+		rows, err = d.Con.Query(query)
+	} else {
+		rows, err = d.Con.Query(query, args...)
+	}
 	if err != nil {
-		log.Log().Error("error occured while fetching result", err)
+		log.Log().Error("error occured while fetching result ", err)
 		os.Exit(1)
 	}
 	cols, _ := rows.Columns()
@@ -78,17 +84,17 @@ func (d *Db) Fetch(query string, limit ...int) []map[string]interface{} {
 	var result []map[string]interface{}
 	for rows.Next() {
 		buff := make([]interface{}, len(cols))
-		bufferPointers := make([]interface{}, len(cols))
+		buffPointers := make([]interface{}, len(cols))
 		buffMap := make(map[string]interface{}, len(cols))
 		for i := range buff {
-			bufferPointers[i] = &buff[i]
+			buffPointers[i] = &buff[i]
 		}
-		if err := rows.Scan(bufferPointers...); err != nil {
+		if err := rows.Scan(buffPointers...); err != nil {
 			log.Log().Error("error while scanning rows, ", err)
 			os.Exit(1)
 		}
 		for i, col := range cols {
-			buffMap[col] = *(bufferPointers[i]).(*interface{})
+			buffMap[col] = *(buffPointers[i]).(*interface{})
 		}
 		result = append(result, buffMap)
 		i++
@@ -96,5 +102,27 @@ func (d *Db) Fetch(query string, limit ...int) []map[string]interface{} {
 			break
 		}
 	}
+
 	return result
+}
+
+//InsUp ...
+func (d *Db) InsUp(query string, args ...interface{}) int64 {
+	var result sql.Result
+	var err error
+	if args == nil {
+		result, err = d.Con.Exec(query)
+	} else {
+		result, err = d.Con.Exec(query, args...)
+	}
+	if err != nil {
+		log.Log().Error("error occured while fetching result ", err)
+		os.Exit(1)
+	}
+	re, _ := result.RowsAffected()
+	log.Log(map[string]interface{}{
+		"Rows_Effected ": re,
+	}).Info("Querry Successfully Executed")
+
+	return re
 }
