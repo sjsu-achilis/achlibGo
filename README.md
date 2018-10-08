@@ -1,7 +1,8 @@
 # achlibGo
 
 ### Use Logger
-```import "github.com/sjsu-achilis/achlibgo/common"</br>
+```
+import "github.com/sjsu-achilis/achlibgo/common"</br>
 var log = common.NewLogger()
 const logfile = "test.log"
 func init() {
@@ -17,7 +18,8 @@ func main(){
 }
 ```
 ### Use db wrappers
-```d := common.NewDb()
+```
+d := common.NewDb()
 d.Connect()
 //fetch all
 rr := d.Fetch("select * from users")
