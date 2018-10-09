@@ -2,9 +2,9 @@
 
 ### Use Logger
 ```
-import "github.com/sjsu-achilis/achlibgo/common"</br>
+import "github.com/sjsu-achilis/achlibgo/common"
 
-// Log only to stdout/stderr
+//Log only to stdout/stderr
 
 common.Log().Info("Logging")
 common.Log().Debug("Loggging")
@@ -12,7 +12,7 @@ common.Log().Warn("Warning")
 common.Log().Error("Error message")
 common.Log().Panic("panic")
 
-// Log with key and values
+//Log with key and values
 
 common.Log(map[string]interface{}{"key":"value", "key1":10,}).Info("Logging")
 
