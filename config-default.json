@@ -1,0 +1,9 @@
+{
+	"postgres": {
+		"host": "achdb.che00bpg1gs1.us-west-2.rds.amazonaws.com",
+		"port": 5432,
+		"user": "achuser",
+		"password": "achpassword",
+    "dbname": "achdb"
+	}
+}

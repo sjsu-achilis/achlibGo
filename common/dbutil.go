@@ -10,59 +10,57 @@ import (
 	_ "github.com/lib/pq"
 )
 
-const (
-	host     = "achdb.che00bpg1gs1.us-west-2.rds.amazonaws.com"
-	port     = 5432
-	user     = "achuser"
-	password = "achpassword"
-	dbname   = "achdb"
-)
-
-var log = NewLogger()
-
 //Db ...
 type Db struct {
-	Info string
-	Con  *sql.DB
+	Pg *sql.DB
 }
 
 //NewDb ...
 func NewDb() *Db {
 	d := new(Db)
-	d.SetConnectionInfo()
 	return d
 }
 
-//SetConnectionInfo ...
-func (d *Db) SetConnectionInfo() {
-	d.Info = fmt.Sprintf("host=%s port=%d user=%s "+
+//PostgresConnect ...
+func PostgresConnect() { d.PostgresConnect() }
+
+//PostgresConnect ...
+func (d *Db) PostgresConnect() {
+	info := fmt.Sprintf("host=%s port=%d user=%s "+
 		"password=%s dbname=%s sslmode=disable",
-		host, port, user, password, dbname)
-}
-
-//Connect ...
-func (d *Db) Connect() {
-	con, err := sql.Open("postgres", d.Info)
+		GetFromConfig("postgres.host"), int(GetFromConfig("postgres.port").(float64)),
+		GetFromConfig("postgres.user"), GetFromConfig("postgres.password"),
+		GetFromConfig("postgres.dbname"))
+	fmt.Println("info: ", info)
+	con, err := sql.Open("postgres", info)
 	if err != nil {
-		log.Log().Error(err)
+		Log().Error(err)
 		os.Exit(1)
 	}
-	d.Con = con
-	log.Log().Info("Connection to DB established")
+	d.Pg = con
+	Log().Info("Connection to DB established")
 }
 
-//Close ...
-func (d *Db) Close() {
-	err := d.Con.Close()
+//PostgresClose ...
+func PostgresClose() { d.PostgresClose() }
+
+//PostgresClose ...
+func (d *Db) PostgresClose() {
+	err := d.Pg.Close()
 	if err != nil {
-		log.Log().Warn("no alive connection", err)
+		Log().Warn("no alive connection", err)
 		os.Exit(1)
 	}
-	log.Log().Info("Connection to DB closed")
+	Log().Info("Connection to DB closed")
 }
 
-//Fetch ...
-func (d *Db) Fetch(query string, limit int, args ...interface{}) []map[string]interface{} {
+//PostgresFetch ...
+func PostgresFetch(query string, limit int, args ...interface{}) []map[string]interface{} {
+	return d.PostgresFetch(query, limit, args...)
+}
+
+//PostgresFetch ...
+func (d *Db) PostgresFetch(query string, limit int, args ...interface{}) []map[string]interface{} {
 	var rows *sql.Rows
 	var err error
 	l := int(math.Inf(+1))
@@ -70,12 +68,12 @@ func (d *Db) Fetch(query string, limit int, args ...interface{}) []map[string]in
 		l = limit
 	}
 	if args == nil {
-		rows, err = d.Con.Query(query)
+		rows, err = d.Pg.Query(query)
 	} else {
-		rows, err = d.Con.Query(query, args...)
+		rows, err = d.Pg.Query(query, args...)
 	}
 	if err != nil {
-		log.Log().Error("error occured while fetching result ", err)
+		Log().Error("error occured while fetching result: ", err)
 		os.Exit(1)
 	}
 	cols, _ := rows.Columns()
@@ -90,7 +88,7 @@ func (d *Db) Fetch(query string, limit int, args ...interface{}) []map[string]in
 			buffPointers[i] = &buff[i]
 		}
 		if err := rows.Scan(buffPointers...); err != nil {
-			log.Log().Error("error while scanning rows, ", err)
+			Log().Error("error while scanning rows, ", err)
 			os.Exit(1)
 		}
 		for i, col := range cols {
@@ -106,21 +104,24 @@ func (d *Db) Fetch(query string, limit int, args ...interface{}) []map[string]in
 	return result
 }
 
-//InsUp ...
-func (d *Db) InsUp(query string, args ...interface{}) int64 {
+//PostgresInsUp ...
+func PostgresInsUp(query string, args ...interface{}) int64 { return d.PostgresInsUp(query, args...) }
+
+//PostgresInsUp ...
+func (d *Db) PostgresInsUp(query string, args ...interface{}) int64 {
 	var result sql.Result
 	var err error
 	if args == nil {
-		result, err = d.Con.Exec(query)
+		result, err = d.Pg.Exec(query)
 	} else {
-		result, err = d.Con.Exec(query, args...)
+		result, err = d.Pg.Exec(query, args...)
 	}
 	if err != nil {
-		log.Log().Error("error occured while fetching result ", err)
+		Log().Error("error occured while fetching result ", err)
 		os.Exit(1)
 	}
 	re, _ := result.RowsAffected()
-	log.Log(map[string]interface{}{
+	Log(map[string]interface{}{
 		"Rows_Effected ": re,
 	}).Info("Querry Successfully Executed")
 
