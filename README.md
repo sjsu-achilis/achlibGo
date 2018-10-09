@@ -37,10 +37,10 @@ rr := common.PostgresFetch("select * from users",10)
 rr := common.PostgresFetch("select * from users where name=$1 and email=$2", 0, name, email)
 
 //insert...update and delete statement without parameter
-re := common.PostgresFetch("DELETE FROM users WHERE name='Test Test'")
+re := common.PostgresInsUp("DELETE FROM users WHERE name='Test Test'")
 
 //insert...update and delete statement with parameter
-re := common.PostgresFetch("DELETE FROM users WHERE name=$1", name)
+re := common.PostgresInsUp("DELETE FROM users WHERE name=$1", name)
 
 //close connection
 common.Close()
