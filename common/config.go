@@ -1,6 +1,8 @@
 package common
 
 import (
+	"os"
+
 	"github.com/spf13/viper"
 )
 
@@ -13,7 +15,7 @@ type Config struct {
 func NewConfig() *Config {
 	c := Config{conf: viper.New()}
 	c.conf.SetConfigName("config-default")
-	c.conf.AddConfigPath(".")
+	c.conf.AddConfigPath(os.Getenv("GOPATH") + "/src/github.com/sjsu-achilis/achlibgo/common")
 	c.conf.SetConfigType("json")
 	err := c.conf.ReadInConfig()
 	if err != nil {
